@@ -1,55 +1,25 @@
 {
   "builders": [{
-    "name": "virtualbox",
-    "type": "virtualbox-iso",
-    "vm_name": "docker-root-packer",
-    "iso_interface": "sata",
-    "iso_url": "../docker-root.iso",
-    "iso_checksum_type": "none",
-    "boot_wait": "5s",
-    "ssh_username": "docker",
-    "ssh_password": "docker",
-    "shutdown_command": "sudo shutdown",
-    "guest_additions_mode": "disable",
-    "guest_os_type": "Linux26_64",
-    "disk_size": 40960,
-    "hard_drive_interface": "sata",
-    "vboxmanage": [
-      ["modifyvm", "{{.Name}}", "--memory", "1024", "--rtcuseutc", "on", "--pae", "off"],
-      ["modifyvm", "{{.Name}}", "--boot1", "dvd", "--boot2", "disk"],
-      ["modifyvm", "{{.Name}}", "--nictype1", "virtio"],
-      ["modifyvm", "{{.Name}}", "--nictype2", "virtio"],
-      ["modifyvm", "{{.Name}}", "--nictype3", "virtio"],
-      ["modifyvm", "{{.Name}}", "--nictype4", "virtio"],
-      ["modifyvm", "{{.Name}}", "--nictype5", "virtio"],
-      ["modifyvm", "{{.Name}}", "--nictype6", "virtio"],
-      ["modifyvm", "{{.Name}}", "--nictype7", "virtio"],
-      ["modifyvm", "{{.Name}}", "--nictype8", "virtio"],
-      ["storagectl", "{{.Name}}", "--name", "SATA Controller", "--portcount", "2"]
-    ]
-  }, {
-    "type": "qemu",
-    "vm_name": "docker-root.qcow2",
-    "iso_url": "docker-root.iso",
-    "iso_checksum_type": "none",
-    "boot_wait": "5s",
-    "ssh_username": "docker",
-    "ssh_password": "docker",
-    "shutdown_command": "sudo shutdown",
-    "disk_size": 40960,
-    "format": "qcow2",
-    "accelerator": "tcg",
-    "net_device": "virtio-net",
-    "disk_interface": "virtio",
-    "headless": true,
-    "qemuargs": [
-      ["-m", "1024"]
-    ]
-  }],
+    "type": "vmware-iso",
+    "vm_name": "docker-root-packer-vmware",
+      "iso_url": "///Volumes/WD-Files/Gdrive/DataHub/Backup/OSImage/docker-root.iso",
+      "iso_checksum_type": "none",
+      "ssh_username": "docker",
+      "ssh_password": "docker",
+      "ssh_wait_timeout": "5s",
+      "disk_size": 40960,
+      "guest_os_type": "Linux26_64",
+      "shutdown_command": "sudo shutdown",
+      "tools_upload_flavor": "linux",
+      "vmx_data": [
+        "memsize": "1024",
+        "numvcpus": "1"
+      ]
+  }  
+  ],
 
   "provisioners": [{
     "type": "shell",
-    "only": ["virtualbox"],
     "inline": [
       "(echo n; echo p; echo 2; echo ; echo +1000M ; echo w;) | sudo fdisk /dev/sda",
       "(echo t; echo 82; echo w;) | sudo fdisk /dev/sda",
@@ -88,27 +58,18 @@
     "destination": "/tmp"
   }, {
     "type": "shell",
-    "only": ["virtualbox"],
     "inline": [
-      "sudo cp /tmp/profile /mnt/sda1/var/lib/docker-root/",
-      "sudo cp /tmp/init.sh /mnt/sda1/var/lib/docker-root/",
-      "sudo chmod +x /mnt/sda1/var/lib/docker-root/init.sh"
+      "sudo cp /tmp/profile /mnt/sda1/var/lib/docker-root/"
     ]
-  }, {
-    "type": "shell",
-    "only": ["qemu"],
-    "inline": [
-      "sudo cp /tmp/profile /mnt/vda2/var/lib/docker-root/"
-    ]
-  }],
+  }
+  ],
 
   "post-processors": [{
     "type": "vagrant",
-    "only": ["virtualbox"],
     "include": [
       "../docker-root.iso",
       "vagrant_plugin_guest_busybox.rb",
-      "mount_virtualbox_shared_folder.rb"
+      "mount_vmware_shared_folder.rb"
     ],
     "vagrantfile_template": "vagrantfile.tpl",
     "output": "../docker-root.box"
