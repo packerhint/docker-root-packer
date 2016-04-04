@@ -11,10 +11,10 @@
       "guest_os_type": "Linux26_64",
       "shutdown_command": "sudo shutdown",
       "tools_upload_flavor": "linux",
-      "vmx_data": [
+      "vmx_data": {
         "memsize": "1024",
         "numvcpus": "1"
-      ]
+      }
   }  
   ],
 
