@@ -33,33 +33,12 @@
     ]
   }, {
     "type": "file",
-    "only": ["qemu"],
-    "source": "docker-root.img",
-    "destination": "/tmp/docker-root.img"
-  }, {
-    "type": "shell",
-    "only": ["qemu"],
-    "inline": [
-      "sudo dd if=/tmp/docker-root.img of=/dev/vda",
-
-      "(echo n; echo p; echo 3; echo ; echo +1000M ; echo w;) | sudo fdisk /dev/vda",
-      "(echo t; echo 3; echo 82; echo w;) | sudo fdisk /dev/vda",
-      "sudo mkswap -L DOCKERROOT-SWAP /dev/vda3",
-      "(echo n; echo p; echo 2; echo ; echo ; echo w;) | sudo fdisk /dev/vda",
-      "sudo mkfs.ext4 -b 4096 -i 4096 -F -L DOCKERROOT-DATA /dev/vda2",
-
-      "sudo mkdir -p /mnt/vda2",
-      "sudo mount -t ext4 /dev/vda2 /mnt/vda2",
-      "sudo mkdir -p /mnt/vda2/var/lib/docker-root"
-    ]
-  }, {
-    "type": "file",
     "source": "assets/",
     "destination": "/tmp"
   }, {
     "type": "shell",
     "inline": [
-      "sudo cp /tmp/profile /mnt/sda1/var/lib/docker-root/"
+      "sudo cp /tmp/profile /mnt/sda1/var/lib/docker/"
     ]
   }
   ],
@@ -67,9 +46,7 @@
   "post-processors": [{
     "type": "vagrant",
     "include": [
-      "../docker-root.iso",
-      "vagrant_plugin_guest_busybox.rb",
-      "mount_vmware_shared_folder.rb"
+      "../docker-root.iso"
     ],
     "vagrantfile_template": "vagrantfile.tpl",
     "output": "../docker-root.box"
